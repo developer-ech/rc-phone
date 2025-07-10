@@ -349,6 +349,43 @@ When using RingCentral, SIP configuration is automatically provisioned. For dire
    - Check audio device settings
    - Verify WebRTC is supported and enabled in the browser
 
+5. **TypeScript errors with JsSIP library**
+   - If you encounter TypeScript errors related to JsSIP types, the application includes a custom type definition file in `src/types/jssip.d.ts`
+   - Make sure your `tsconfig.json` includes the custom type definitions:
+     ```json
+     "typeRoots": [
+       "node_modules/@types",
+       "src/types"
+     ],
+     "skipLibCheck": true
+     ```
+   - If you still encounter errors, try using `any` type for JsSIP objects temporarily
+
+6. **RingCentral SDK Node.js compatibility issues**
+   - The application uses a custom implementation of RingCentral API calls using HttpClient instead of the official SDK
+   - This avoids Node.js-specific dependencies like 'crypto' that cause issues in the browser
+   - If you want to use the official SDK, you'll need to configure Vite with Node.js polyfills:
+     ```javascript
+     // vite.config.js
+     import { nodePolyfills } from 'vite-plugin-node-polyfills';
+     
+     export default defineConfig({
+       // ... other config
+       plugins: [
+         nodePolyfills({
+           protocolImports: true,
+         }),
+       ],
+       resolve: {
+         alias: {
+           crypto: 'crypto-browserify',
+           stream: 'stream-browserify',
+           // ... other Node.js built-ins
+         }
+       }
+     });
+     ```
+
 ### Browser Compatibility
 
 The application is tested and works on:
