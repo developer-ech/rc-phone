@@ -28,7 +28,9 @@ export class AdminPanelComponent implements OnInit {
     this.configForm = this.fb.group({
       clientId: ['', Validators.required],
       clientSecret: ['', Validators.required],
-      serverUrl: ['https://platform.ringcentral.com', Validators.required]
+      serverUrl: ['https://platform.ringcentral.com', Validators.required],
+      useJwt: [false],
+      jwtToken: ['']
     });
 
     this.loginForm = this.fb.group({
@@ -47,7 +49,9 @@ export class AdminPanelComponent implements OnInit {
         this.configForm.patchValue({
           clientId: config.clientId,
           clientSecret: config.clientSecret,
-          serverUrl: config.serverUrl
+          serverUrl: config.serverUrl,
+          useJwt: config.useJwt || false,
+          jwtToken: config.jwtToken || ''
         });
       } catch (e) {
         console.error('Failed to parse stored config', e);
@@ -69,11 +73,24 @@ export class AdminPanelComponent implements OnInit {
     if (this.configForm.valid) {
       const config: RingCentralConfig = this.configForm.value;
       
+      // Validate JWT token if useJwt is true
+      if (config.useJwt && !config.jwtToken) {
+        this.saveError = true;
+        this.saveSuccess = false;
+        return;
+      }
+      
       try {
         this.ringCentralService.initialize(config);
         this.saveSuccess = true;
         this.saveError = false;
-        this.showLoginForm = true;
+        
+        // Only show login form if not using JWT and not already authenticated
+        if (!config.useJwt && !this.isAuthenticated) {
+          this.showLoginForm = true;
+        } else {
+          this.showLoginForm = false;
+        }
         
         // Reset success message after 3 seconds
         setTimeout(() => {

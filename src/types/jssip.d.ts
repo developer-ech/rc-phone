@@ -47,6 +47,7 @@ declare module 'jssip' {
     connection_recovery_min_interval?: number;
     connection_recovery_max_interval?: number;
     user_agent?: string;
+    authorization_jwt?: string;
     [key: string]: any;
   }
 

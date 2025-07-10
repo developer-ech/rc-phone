@@ -48,12 +48,18 @@ export class SipService {
     const configuration: JsSIP.UAConfiguration = {
       sockets: [socket],
       uri: config.uri,
-      password: config.password,
       display_name: config.displayName || '',
       register: true,
       register_expires: 300,
       session_timers: false
     };
+    
+    // Add authentication based on whether JWT is used or not
+    if (config.useJwt && config.jwtToken) {
+      configuration.authorization_jwt = config.jwtToken;
+    } else {
+      configuration.password = config.password;
+    }
 
     try {
       this.ua = new JsSIP.UA(configuration);

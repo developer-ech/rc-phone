@@ -5,6 +5,8 @@ export interface RingCentralConfig {
   username?: string;
   password?: string;
   extension?: string;
+  jwtToken?: string;
+  useJwt?: boolean;
 }
 
 export interface CallParams {

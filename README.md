@@ -304,15 +304,23 @@ The admin panel allows configuration of:
 - Client ID
 - Client Secret
 - Server URL (defaults to https://platform.ringcentral.com)
-- Username (phone number)
-- Password
-- Extension (optional)
+- JWT Token Authentication:
+  - Enable JWT Authentication checkbox
+  - JWT Token input field
+- Password Authentication:
+  - Username (phone number)
+  - Password
+  - Extension (optional)
 
 ### SIP Configuration
 
 When using RingCentral, SIP configuration is automatically provisioned. For direct SIP configuration, you would need:
 - SIP URI (e.g., sip:username@domain.com)
-- SIP Password
+- Authentication:
+  - Password Authentication:
+    - SIP Password
+  - JWT Authentication:
+    - JWT Token
 - WebSocket Server URL (e.g., wss://sip.domain.com:8089/ws)
 - Display Name (optional)
 

@@ -54,9 +54,43 @@ export class RingCentralService {
     // Save config to localStorage
     localStorage.setItem('ringcentralConfig', JSON.stringify(config));
     
-    // If we have username and password, try to authenticate
-    if (config.username && config.password) {
+    // If we have JWT token and useJwt is true, use JWT authentication
+    if (config.useJwt && config.jwtToken) {
+      this.loginWithJwt(config.jwtToken);
+    }
+    // Otherwise, if we have username and password, try to authenticate with password
+    else if (config.username && config.password) {
       this.login(config.username, config.password, config.extension);
+    }
+  }
+  
+  async loginWithJwt(jwtToken: string): Promise<boolean> {
+    if (!this.config) {
+      console.error('RingCentral config not initialized');
+      return false;
+    }
+
+    try {
+      // Store the JWT token directly
+      this.accessToken = jwtToken;
+      
+      // Store token with a long expiration (JWT tokens typically have their own expiration)
+      const tokenData = {
+        access_token: jwtToken,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+      };
+      localStorage.setItem('ringcentralToken', JSON.stringify(tokenData));
+      
+      this._isAuthenticated.next(true);
+      
+      // Get SIP provisioning info
+      await this.getSipProvisioningInfo();
+      
+      return true;
+    } catch (e) {
+      console.error('RingCentral JWT login failed', e);
+      this._isAuthenticated.next(false);
+      return false;
     }
   }
 
@@ -158,6 +192,12 @@ export class RingCentralService {
           wsServers: [data.sipInfo[0].outboundProxy],
           displayName: data.sipInfo[0].displayName || ''
         };
+        
+        // If we're using JWT, add it to the SIP config
+        if (this.config?.useJwt && this.config?.jwtToken) {
+          sipConfig.jwtToken = this.config.jwtToken;
+          sipConfig.useJwt = true;
+        }
         
         this._sipConfig.next(sipConfig);
       }
