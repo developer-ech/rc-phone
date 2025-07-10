@@ -1,0 +1,26 @@
+<div class="dial-pad-container">
+  <div class="phone-display">
+    <input type="text" [(ngModel)]="phoneNumber" placeholder="Enter phone number" />
+    <button class="clear-btn" (click)="backspace()" title="Backspace">⌫</button>
+    <button class="clear-btn" (click)="clearNumber()" title="Clear">✕</button>
+  </div>
+  
+  <div class="dial-pad">
+    @for (row of keys; track $index) {
+      <div class="dial-pad-row">
+        @for (key of row; track $index) {
+          <button class="dial-key" (click)="addDigit(key)">{{ key }}</button>
+        }
+      </div>
+    }
+  </div>
+  
+  <div class="call-controls">
+    <button class="call-btn" (click)="makeCall()" title="Call">
+      <span class="call-icon">📞</span>
+    </button>
+    <button class="hangup-btn" (click)="endCall()" title="Hang Up">
+      <span class="hangup-icon">🔴</span>
+    </button>
+  </div>
+</div>
