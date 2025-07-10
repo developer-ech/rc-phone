@@ -20,7 +20,12 @@ h1 {
   margin: 0;
 }
 
-.admin-toggle {
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-toggle, .sip-toggle {
   background-color: #6c757d;
   color: white;
   border: none;
@@ -30,8 +35,16 @@ h1 {
   font-size: 14px;
 }
 
-.admin-toggle:hover {
+.admin-toggle:hover, .sip-toggle:hover {
   background-color: #5a6268;
+}
+
+.sip-toggle {
+  background-color: #28a745;
+}
+
+.sip-toggle:hover {
+  background-color: #218838;
 }
 
 main {
@@ -40,7 +53,7 @@ main {
   gap: 20px;
 }
 
-.admin-section {
+.admin-section, .sip-section {
   margin-bottom: 20px;
 }
 
@@ -65,7 +78,7 @@ footer {
     gap: 10px;
   }
   
-  .admin-toggle {
+  .header-buttons {
     align-self: flex-end;
   }
 }

@@ -123,11 +123,29 @@ You can easily test this application on your local computer:
    http://localhost:12000/?admin=true
    ```
 
+7. To show the SIP configuration panel by default:
+   ```
+   http://localhost:12000/?sip=true
+   ```
+
 ### Testing SIP Functionality
 
+#### Option 1: Direct SIP Configuration
+1. Click "Show SIP Config" in the application
+2. Enter your SIP credentials:
+   - SIP URI (e.g., sip:username@domain.com)
+   - SIP Password or JWT Token (depending on your authentication method)
+   - WebSocket Server URL (e.g., wss://sip.domain.com:8089/ws)
+   - Display Name (optional)
+3. Click "Save Configuration"
+4. Test making calls to valid phone numbers
+
+#### Option 2: RingCentral SIP Provisioning
 1. Click "Show Admin Panel" in the application
-2. Enter your SIP credentials (URI, password, WebSocket server)
-3. Test making calls to valid phone numbers
+2. Enter your RingCentral API credentials
+3. Log in with your RingCentral account
+4. SIP will be automatically provisioned
+5. Test making calls to valid phone numbers
 
 ### Testing RingCentral Integration
 
@@ -292,6 +310,7 @@ The WebPhone supports the following URL parameters:
 - `customerName`: The name of the customer (will be displayed in the UI)
 - `customerNumber`: The phone number to call (will be pre-filled in the dial pad)
 - `admin=true`: Show the admin panel by default
+- `sip=true`: Show the SIP configuration panel by default
 
 Example:
 ```
