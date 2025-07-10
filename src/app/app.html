@@ -1,0 +1,22 @@
+<div class="app-container">
+  <header>
+    <h1>RingCentral WebPhone</h1>
+    <button class="admin-toggle" (click)="toggleAdminPanel()">
+      {{ showAdminPanel ? 'Hide Admin Panel' : 'Show Admin Panel' }}
+    </button>
+  </header>
+
+  <main>
+    <div class="admin-section" *ngIf="showAdminPanel">
+      <app-admin-panel></app-admin-panel>
+    </div>
+
+    <div class="phone-section">
+      <app-dial-pad></app-dial-pad>
+    </div>
+  </main>
+
+  <footer>
+    <p>RingCentral WebPhone Widget for Zoho CRM</p>
+  </footer>
+</div>
