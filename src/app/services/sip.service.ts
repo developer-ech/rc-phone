@@ -16,7 +16,7 @@ export enum CallStatus {
 })
 export class SipService {
   private ua: JsSIP.UA | null = null;
-  private currentSession: JsSIP.RTCSession | null = null;
+  private currentSession: any = null;
   private _callStatus = new BehaviorSubject<CallStatus>(CallStatus.IDLE);
   private _callDuration = new BehaviorSubject<number>(0);
   private durationTimer: any = null;
@@ -39,11 +39,13 @@ export class SipService {
     }
 
     // Configure JsSIP
-    JsSIP.debug.enable('JsSIP:*');
+    if (JsSIP.debug && typeof JsSIP.debug.enable === 'function') {
+      JsSIP.debug.enable('JsSIP:*');
+    }
     
     const socket = new JsSIP.WebSocketInterface(config.wsServers[0]);
     
-    const configuration = {
+    const configuration: JsSIP.UAConfiguration = {
       sockets: [socket],
       uri: config.uri,
       password: config.password,
@@ -81,7 +83,7 @@ export class SipService {
     }
   }
 
-  private handleOutgoingCall(session: JsSIP.RTCSession): void {
+  private handleOutgoingCall(session: any): void {
     this.currentSession = session;
     this._callStatus.next(CallStatus.CONNECTING);
     
@@ -150,7 +152,7 @@ export class SipService {
       return;
     }
     
-    const options = {
+    const options: JsSIP.CallOptions = {
       mediaConstraints: { audio: true, video: false },
       pcConfig: {
         iceServers: [
