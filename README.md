@@ -110,22 +110,22 @@ You can easily test this application on your local computer:
 
 4. Access the application in your browser:
    ```
-   http://localhost:12000
+   http://localhost:4200
    ```
 
 5. To test with customer data parameters:
    ```
-   http://localhost:12000/?customerName=John%20Doe&customerNumber=+15551234567
+   http://localhost:4200/?customerName=John%20Doe&customerNumber=+15551234567
    ```
 
 6. To show the admin panel by default:
    ```
-   http://localhost:12000/?admin=true
+   http://localhost:4200/?admin=true
    ```
 
 7. To show the SIP configuration panel by default:
    ```
-   http://localhost:12000/?sip=true
+   http://localhost:4200/?sip=true
    ```
 
 ### Testing SIP Functionality
@@ -314,7 +314,7 @@ The WebPhone supports the following URL parameters:
 
 Example:
 ```
-https://your-webphone-url/?customerName=John%20Doe&customerNumber=+15551234567&admin=true
+https://your-webphone-url/?customerName=John%20Doe&customerNumber=+15551234567&admin=true&sip=true
 ```
 
 ### RingCentral API Configuration

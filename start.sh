@@ -15,5 +15,5 @@ echo "Building the application..."
 ng build
 
 # Serve the application
-echo "Starting the server on port 12000..."
-ng serve --host 0.0.0.0 --port 12000 --disable-host-check
+echo "Starting the server on port 4200..."
+ng serve --host 0.0.0.0 --port 4200 --disable-host-check
