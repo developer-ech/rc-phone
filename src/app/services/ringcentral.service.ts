@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
-import { SDK } from '@ringcentral/sdk';
 import { BehaviorSubject } from 'rxjs';
 import { RingCentralConfig } from '../models/ringcentral-config.model';
 import { SipConfig } from '../models/sip-config.model';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RingCentralService {
-  private sdk: SDK | null = null;
-  private platform: any = null;
+  private config: RingCentralConfig | null = null;
+  private accessToken: string | null = null;
   private _isAuthenticated = new BehaviorSubject<boolean>(false);
   private _sipConfig = new BehaviorSubject<SipConfig | null>(null);
   
   isAuthenticated$ = this._isAuthenticated.asObservable();
   sipConfig$ = this._sipConfig.asObservable();
 
-  constructor() {
+  constructor(private http: HttpClient) {
     // Try to load config from localStorage
     this.loadConfigFromStorage();
   }
@@ -31,49 +31,80 @@ export class RingCentralService {
         console.error('Failed to parse stored RingCentral config', e);
       }
     }
+    
+    // Check if we have a stored token
+    const storedToken = localStorage.getItem('ringcentralToken');
+    if (storedToken) {
+      try {
+        const tokenData = JSON.parse(storedToken);
+        if (tokenData.access_token && new Date(tokenData.expires_at) > new Date()) {
+          this.accessToken = tokenData.access_token;
+          this._isAuthenticated.next(true);
+          this.getSipProvisioningInfo();
+        }
+      } catch (e) {
+        console.error('Failed to parse stored token', e);
+      }
+    }
   }
 
   initialize(config: RingCentralConfig): void {
-    try {
-      this.sdk = new SDK({
-        server: config.serverUrl,
-        clientId: config.clientId,
-        clientSecret: config.clientSecret
-      });
-      
-      this.platform = this.sdk.platform();
-      
-      // Save config to localStorage
-      localStorage.setItem('ringcentralConfig', JSON.stringify(config));
-      
-      // If we have username and password, try to authenticate
-      if (config.username && config.password) {
-        this.login(config.username, config.password, config.extension);
-      }
-    } catch (e) {
-      console.error('Failed to initialize RingCentral SDK', e);
+    this.config = config;
+    
+    // Save config to localStorage
+    localStorage.setItem('ringcentralConfig', JSON.stringify(config));
+    
+    // If we have username and password, try to authenticate
+    if (config.username && config.password) {
+      this.login(config.username, config.password, config.extension);
     }
   }
 
   async login(username: string, password: string, extension?: string): Promise<boolean> {
-    if (!this.platform) {
-      console.error('RingCentral SDK not initialized');
+    if (!this.config) {
+      console.error('RingCentral config not initialized');
       return false;
     }
 
     try {
-      await this.platform.login({
-        username,
-        password,
-        extension: extension || ''
+      const formData = new URLSearchParams();
+      formData.append('grant_type', 'password');
+      formData.append('username', username);
+      formData.append('password', password);
+      if (extension) {
+        formData.append('extension', extension);
+      }
+      
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + btoa(`${this.config.clientId}:${this.config.clientSecret}`)
       });
       
-      this._isAuthenticated.next(true);
+      const response = await this.http.post<any>(
+        `${this.config.serverUrl}/restapi/oauth/token`,
+        formData.toString(),
+        { headers }
+      ).toPromise();
       
-      // Get SIP provisioning info
-      await this.getSipProvisioningInfo();
+      if (response && response.access_token) {
+        this.accessToken = response.access_token;
+        
+        // Store token with expiration
+        const tokenData = {
+          access_token: response.access_token,
+          expires_at: new Date(Date.now() + response.expires_in * 1000).toISOString()
+        };
+        localStorage.setItem('ringcentralToken', JSON.stringify(tokenData));
+        
+        this._isAuthenticated.next(true);
+        
+        // Get SIP provisioning info
+        await this.getSipProvisioningInfo();
+        
+        return true;
+      }
       
-      return true;
+      return false;
     } catch (e) {
       console.error('RingCentral login failed', e);
       this._isAuthenticated.next(false);
@@ -82,12 +113,22 @@ export class RingCentralService {
   }
 
   async logout(): Promise<void> {
-    if (this.platform && this._isAuthenticated.value) {
+    if (this.accessToken && this._isAuthenticated.value) {
       try {
-        await this.platform.logout();
+        const headers = new HttpHeaders({
+          'Authorization': `Bearer ${this.accessToken}`
+        });
+        
+        await this.http.post(
+          `${this.config?.serverUrl}/restapi/oauth/revoke`,
+          { token: this.accessToken },
+          { headers }
+        ).toPromise();
       } catch (e) {
         console.error('Logout error', e);
       } finally {
+        this.accessToken = null;
+        localStorage.removeItem('ringcentralToken');
         this._isAuthenticated.next(false);
         this._sipConfig.next(null);
       }
@@ -95,22 +136,22 @@ export class RingCentralService {
   }
 
   private async getSipProvisioningInfo(): Promise<void> {
-    if (!this.platform || !this._isAuthenticated.value) {
+    if (!this.accessToken || !this._isAuthenticated.value || !this.config) {
       return;
     }
 
     try {
-      const response = await this.platform.get('/restapi/v1.0/client-info/sip-provision', {
-        sipInfo: [{
-          transport: 'WSS'
-        }]
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${this.accessToken}`
       });
       
-      const data = await response.json();
+      const data = await this.http.post<any>(
+        `${this.config.serverUrl}/restapi/v1.0/client-info/sip-provision`,
+        { sipInfo: [{ transport: 'WSS' }] },
+        { headers }
+      ).toPromise();
       
       if (data && data.sipInfo && data.sipInfo.length > 0) {
-        const sipInfo = data.sipInfo[0];
-        
         const sipConfig: SipConfig = {
           uri: data.sipInfo[0].username,
           password: data.sipInfo[0].password,
@@ -127,18 +168,27 @@ export class RingCentralService {
 
   // Method to make a call using the RingCentral API
   async makeCall(phoneNumber: string, customerName?: string): Promise<any> {
-    if (!this.platform || !this._isAuthenticated.value) {
+    if (!this.accessToken || !this._isAuthenticated.value || !this.config) {
       throw new Error('Not authenticated with RingCentral');
     }
 
     try {
-      const response = await this.platform.post('/restapi/v1.0/account/~/extension/~/call', {
-        to: { phoneNumber },
-        from: { phoneNumber: 'username' }, // This will be replaced with the user's phone number
-        callerId: { name: customerName || phoneNumber }
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${this.accessToken}`,
+        'Content-Type': 'application/json'
       });
       
-      return await response.json();
+      const response = await this.http.post<any>(
+        `${this.config.serverUrl}/restapi/v1.0/account/~/extension/~/call`,
+        {
+          to: { phoneNumber },
+          from: { phoneNumber: 'username' }, // This will be replaced with the user's phone number
+          callerId: { name: customerName || phoneNumber }
+        },
+        { headers }
+      ).toPromise();
+      
+      return response;
     } catch (e) {
       console.error('Failed to make call via RingCentral API', e);
       throw e;
