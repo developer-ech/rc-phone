@@ -1,0 +1,56 @@
+<div class="dial-pad-container">
+  <div class="phone-display">
+    <div class="number-display">
+      <input type="text" [(ngModel)]="phoneNumber" placeholder="Enter phone number" [disabled]="isCallActive()">
+      <button class="backspace-btn" (click)="onBackspaceClick()" [disabled]="isCallActive() || phoneNumber.length === 0">
+        ⌫
+      </button>
+    </div>
+    
+    <div class="customer-name" *ngIf="customerName">
+      <span>{{ customerName }}</span>
+    </div>
+    
+    <div class="call-status" [ngClass]="callStatus.toLowerCase()">
+      {{ getCallStatusText() }}
+    </div>
+  </div>
+
+  <div class="dial-pad">
+    <div class="dial-pad-row">
+      <button class="dial-btn" (click)="onDigitClick('1')" [disabled]="isCallActive()">1</button>
+      <button class="dial-btn" (click)="onDigitClick('2')" [disabled]="isCallActive()">2</button>
+      <button class="dial-btn" (click)="onDigitClick('3')" [disabled]="isCallActive()">3</button>
+    </div>
+    <div class="dial-pad-row">
+      <button class="dial-btn" (click)="onDigitClick('4')" [disabled]="isCallActive()">4</button>
+      <button class="dial-btn" (click)="onDigitClick('5')" [disabled]="isCallActive()">5</button>
+      <button class="dial-btn" (click)="onDigitClick('6')" [disabled]="isCallActive()">6</button>
+    </div>
+    <div class="dial-pad-row">
+      <button class="dial-btn" (click)="onDigitClick('7')" [disabled]="isCallActive()">7</button>
+      <button class="dial-btn" (click)="onDigitClick('8')" [disabled]="isCallActive()">8</button>
+      <button class="dial-btn" (click)="onDigitClick('9')" [disabled]="isCallActive()">9</button>
+    </div>
+    <div class="dial-pad-row">
+      <button class="dial-btn" (click)="onDigitClick('*')" [disabled]="isCallActive()">*</button>
+      <button class="dial-btn" (click)="onDigitClick('0')" [disabled]="isCallActive()">0</button>
+      <button class="dial-btn" (click)="onDigitClick('#')" [disabled]="isCallActive()">#</button>
+    </div>
+  </div>
+
+  <div class="call-controls">
+    <button 
+      class="call-btn" 
+      [ngClass]="{'active': callStatus === 'IN_CALL' || callStatus === 'CONNECTING'}"
+      (click)="isCallActive() ? onHangupClick() : onCallClick()"
+      [disabled]="!isAuthenticated || (phoneNumber.trim() === '' && !isCallActive())"
+    >
+      {{ isCallActive() ? 'Hang Up' : 'Call' }}
+    </button>
+  </div>
+
+  <div class="auth-warning" *ngIf="!isAuthenticated">
+    <p>Please configure RingCentral API credentials in the Admin Panel to enable calling.</p>
+  </div>
+</div>

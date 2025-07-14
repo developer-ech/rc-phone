@@ -1,0 +1,98 @@
+<div class="admin-panel">
+  <h2>RingCentral API Configuration</h2>
+  
+  <div class="status-indicator">
+    <div class="status-dot" [ngClass]="{'connected': isAuthenticated, 'disconnected': !isAuthenticated}"></div>
+    <span>{{ isAuthenticated ? 'Connected' : 'Not Connected' }}</span>
+  </div>
+
+  <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
+    <div class="form-group">
+      <label for="clientId">Client ID</label>
+      <input type="text" id="clientId" formControlName="clientId" placeholder="Enter RingCentral Client ID">
+      <div class="error" *ngIf="configForm.get('clientId')?.invalid && configForm.get('clientId')?.touched">
+        Client ID is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="clientSecret">Client Secret</label>
+      <input type="password" id="clientSecret" formControlName="clientSecret" placeholder="Enter RingCentral Client Secret">
+      <div class="error" *ngIf="configForm.get('clientSecret')?.invalid && configForm.get('clientSecret')?.touched">
+        Client Secret is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="serverUrl">Server URL</label>
+      <input type="text" id="serverUrl" formControlName="serverUrl" placeholder="Enter RingCentral Server URL">
+      <div class="error" *ngIf="configForm.get('serverUrl')?.invalid && configForm.get('serverUrl')?.touched">
+        Server URL is required
+      </div>
+    </div>
+
+    <div class="form-group checkbox">
+      <input type="checkbox" id="useJwt" formControlName="useJwt">
+      <label for="useJwt">Use JWT Authentication</label>
+    </div>
+
+    <div class="form-group" *ngIf="configForm.get('useJwt')?.value">
+      <label for="jwtToken">JWT Token</label>
+      <textarea id="jwtToken" formControlName="jwtToken" placeholder="Enter JWT Token" rows="4"></textarea>
+      <div class="error" *ngIf="configForm.get('useJwt')?.value && !configForm.get('jwtToken')?.value">
+        JWT Token is required when using JWT authentication
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="configForm.invalid || (configForm.get('useJwt')?.value && !configForm.get('jwtToken')?.value)">Save Configuration</button>
+    
+    <div class="message success" *ngIf="saveSuccess">
+      Configuration saved successfully!
+    </div>
+    
+    <div class="message error" *ngIf="saveError">
+      Failed to save configuration. Please check your inputs.
+    </div>
+  </form>
+
+  <div class="login-section" *ngIf="showLoginForm && !isAuthenticated">
+    <h3>Login to RingCentral</h3>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <div class="form-group">
+        <label for="username">Username (Phone Number)</label>
+        <input type="text" id="username" formControlName="username" placeholder="Enter phone number">
+        <div class="error" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+          Username is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" formControlName="password" placeholder="Enter password">
+        <div class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="extension">Extension (Optional)</label>
+        <input type="text" id="extension" formControlName="extension" placeholder="Enter extension">
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid">Login</button>
+      
+      <div class="message success" *ngIf="loginSuccess">
+        Login successful!
+      </div>
+      
+      <div class="message error" *ngIf="loginError">
+        Login failed. Please check your credentials.
+      </div>
+    </form>
+  </div>
+
+  <div class="logout-section" *ngIf="isAuthenticated">
+    <button (click)="logout()">Logout</button>
+  </div>
+</div>

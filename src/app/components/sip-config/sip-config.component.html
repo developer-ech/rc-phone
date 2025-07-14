@@ -1,0 +1,57 @@
+<div class="sip-config">
+  <h2>SIP Configuration</h2>
+  
+  <form [formGroup]="sipForm" (ngSubmit)="saveConfig()">
+    <div class="form-group">
+      <label for="uri">SIP URI</label>
+      <input type="text" id="uri" formControlName="uri" placeholder="e.g., sip:username@domain.com">
+      <div class="error" *ngIf="sipForm.get('uri')?.invalid && sipForm.get('uri')?.touched">
+        SIP URI is required
+      </div>
+    </div>
+
+    <div class="form-group checkbox">
+      <input type="checkbox" id="useJwt" formControlName="useJwt">
+      <label for="useJwt">Use JWT Authentication</label>
+    </div>
+
+    <div class="form-group" *ngIf="!useJwt">
+      <label for="password">SIP Password</label>
+      <input type="password" id="password" formControlName="password" placeholder="Enter SIP password">
+      <div class="error" *ngIf="sipForm.get('password')?.invalid && sipForm.get('password')?.touched && !useJwt">
+        Password is required when not using JWT
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="useJwt">
+      <label for="jwtToken">JWT Token</label>
+      <textarea id="jwtToken" formControlName="jwtToken" placeholder="Enter JWT Token" rows="4"></textarea>
+      <div class="error" *ngIf="sipForm.get('jwtToken')?.invalid && sipForm.get('jwtToken')?.touched && useJwt">
+        JWT Token is required when using JWT authentication
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="wsServers">WebSocket Server</label>
+      <input type="text" id="wsServers" formControlName="wsServers" placeholder="e.g., wss://sip.domain.com:8089/ws">
+      <div class="error" *ngIf="sipForm.get('wsServers')?.invalid && sipForm.get('wsServers')?.touched">
+        WebSocket Server is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="displayName">Display Name (Optional)</label>
+      <input type="text" id="displayName" formControlName="displayName" placeholder="Your display name">
+    </div>
+
+    <button type="submit" [disabled]="sipForm.invalid">Save Configuration</button>
+    
+    <div class="message success" *ngIf="saveSuccess">
+      Configuration saved successfully!
+    </div>
+    
+    <div class="message error" *ngIf="saveError">
+      Failed to save configuration. Please check your inputs.
+    </div>
+  </form>
+</div>

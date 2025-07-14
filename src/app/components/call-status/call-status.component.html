@@ -1,0 +1,9 @@
+<div class="call-status-container">
+  <div class="status-indicator" [ngClass]="callStatus.toLowerCase()">
+    <div class="status-text">{{ getStatusText() }}</div>
+    
+    <div class="duration" *ngIf="callStatus === 'IN_CALL'">
+      {{ formatDuration(callDuration) }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,157 @@
+.dial-pad-container {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.phone-display {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.number-display {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.number-display input {
+  flex: 1;
+  border: none;
+  font-size: 18px;
+  padding: 5px;
+  outline: none;
+}
+
+.backspace-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.backspace-btn:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.customer-name {
+  font-size: 14px;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.call-status {
+  text-align: center;
+  font-size: 14px;
+  padding: 5px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.call-status.idle {
+  color: #6c757d;
+}
+
+.call-status.connecting {
+  color: #fd7e14;
+}
+
+.call-status.in_call {
+  color: #28a745;
+}
+
+.call-status.ended {
+  color: #6c757d;
+}
+
+.call-status.failed {
+  color: #dc3545;
+}
+
+.dial-pad {
+  margin-bottom: 15px;
+}
+
+.dial-pad-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dial-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dial-btn:hover {
+  background-color: #e9ecef;
+}
+
+.dial-btn:disabled {
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.call-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.call-btn {
+  width: 100%;
+  height: 60px;
+  border-radius: 30px;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.call-btn:hover {
+  background-color: #218838;
+}
+
+.call-btn.active {
+  background-color: #dc3545;
+}
+
+.call-btn.active:hover {
+  background-color: #c82333;
+}
+
+.call-btn:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.auth-warning {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 14px;
+  text-align: center;
+}
